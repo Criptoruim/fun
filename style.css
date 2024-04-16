@@ -1,0 +1,95 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+header.site-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #f0f0f0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.branding h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+}
+
+.support-text {
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+}
+
+.controls {
+    margin: 10px;
+    text-align: center;
+}
+
+#feed {
+    justify-content: center;
+}
+
+.post {
+    display: flex;
+    align-content: center;
+    align-items: center;
+    margin: 10px;
+    padding: 20px;
+    width: auto;
+    max-height: auto;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background-color: white;
+    transition: background-color 0.5s ease, border-color 0.5s ease;
+    text-decoration: none;
+    color: inherit;
+    overflow: hidden;
+}
+
+.post img {
+    width: 120px;
+    height: 120px;
+    margin-right: 20px;
+    border-radius: 60px;
+}
+
+.trade-info {
+    display: inline-block;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.trade-info > div {
+    margin: 5px 0;
+    font-size: 14px;
+    display: inline-block;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.table thead th {
+    white-space: nowrap; /* Prevent line breaks */
+}
+
+.table tbody td:first-child {
+    font-weight: bold; /* Make the first column (Name) bold */
+}
+
+tr tbody {
+    display: table-row;
+    vertical-align: inherit;
+    unicode-bidi: isolate;
+    border-color: inherit;
+}
+
+table tbody > tr > td {
+    position: relative;
+    padding: 8px 10px;
+    overflow-wrap: break-word;
+}

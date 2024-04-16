@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pump.Investments</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h1 class="branding">Pump.Investments</h1>
+                </div>
+                <div class="col">
+                    <p class="support-text">If you found this site to be helpful feel free to buy me a cup of coffee. <br>
+                    Solana: 8oRZGW7wDEkmxMWhRo7eaQes4zR1smh9Q1wDwiDaCKnx</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mt-3">
+        <div class="row align-items-center mb-3">
+            <div class="col-md-4">
+                <label for="timeRange" class="form-label">Time Range:</label>
+                <select id="timeRange" class="form-select">
+                    <option value="3">Last 3 minutes</option>
+                    <option value="5">Last 5 minutes</option>
+                    <!-- Add more options as needed -->
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="postCount" class="form-label">Number of Tokens:</label>
+                <select id="postCount" class="form-select">
+                    <option value="10">Top 10</option>
+                    <option value="20">Top 20</option>
+                    <!-- Add more options as needed -->
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="feedType" class="form-label">Sort:</label>
+                <select id="feedType" class="form-select">
+                    <option value="volume">Volume</option>
+                    <option value="gainers">Gainers</option>
+                    <option value="losers">Losers</option>
+                    <!-- New option added -->
+                    <option value="uniqueTraders">Unique Traders</option>
+                </select>
+            </div>
+
+        </div>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Symbol</th>
+                        <th>Market Cap (USD)</th>
+                        <th>Total Volume (USD)</th>
+                        <th>Buy Volume (USD)</th>
+                        <th>Sell Volume (USD)</th>
+                        <th>Unique Traders</th>
+                        <th>Time Since Last Trade (seconds)</th>
+                    </tr>
+                </thead>
+                <tbody id="feed">
+                    <!-- Table rows will be dynamically added here -->
+                </tbody>
+            </table>
+        </div>
+        
+        
+    <!-- Socket.IO -->
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <!-- Custom JS -->
+    <script src="/script1.js"></script>
+</body>
+</html>
