@@ -1,0 +1,2 @@
+# fun
+pump.fun analytics
