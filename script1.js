@@ -210,3 +210,52 @@ postCountSelect.addEventListener('change', updateFeed);
 feedTypeSelect.addEventListener('change', updateFeed);
 
 updateFeed();
+
+// Placeholder for Solana price
+let solPrice = 140;
+
+// Additional state for leaderboard
+let traders = {};
+
+// Updated tradeCreated event to track profit and update leaderboard
+socket.on('tradeCreated', (newTrade) => {
+    // ... Your existing code for handling newTrade ...
+
+    // Update trader profit (simplified example calculation)
+    const profitFromTrade = newTrade.is_buy
+        ? (newTrade.sol_amount * solPrice) // Assume profit is just the buy amount times SOL price
+        : (-newTrade.sol_amount * solPrice); // Negative for a sell
+
+    if (!traders[newTrade.user]) {
+        traders[newTrade.user] = { totalProfit: 0, trades: [] };
+    }
+    traders[newTrade.user].totalProfit += profitFromTrade;
+    traders[newTrade.user].trades.push(newTrade);
+
+    // ... Your existing code for filtering trades ...
+
+    // Call to update the leaderboard
+    updateLeaderboard();
+});
+
+function updateLeaderboard() {
+    // ... Your existing updateLeaderboard function ...
+}
+
+function renderLeaderboard(sortedTraders) {
+    const leaderboardElement = document.getElementById('leaderboard');
+    leaderboardElement.innerHTML = '';
+
+    sortedTraders.forEach(trader => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${trader.user}</td>
+            <td>${trader.totalProfit.toFixed(2)}</td>
+            <td>${trader.trades.length}</td>
+        `;
+        leaderboardElement.appendChild(row);
+    });
+}
+
+// Call the initial update feed to populate the data
+updateFeed();
