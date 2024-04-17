@@ -113,31 +113,6 @@ function renderTrades(trades) {
         const timeSinceLastTrade = Math.floor((Date.now() - trade.lastTradeTime) / 1000);
         const row = document.createElement('tr');
 
-        // Create td elements with appropriate classes
-        const cells = [
-            createTableCellWithImage(trade.image_uri || 'path/to/default/image.jpg', trade.name, 'table-cell-name'),
-            createTableCell(trade.symbol, 'table-cell-symbol'),
-            createTableCell(`$${parseFloat(trade.usd_market_cap).toFixed(2)}`, 'table-cell-market-cap'),
-            createTableCell(`$${trade.totalVolume.toFixed(2)}`, 'table-cell-total-volume'),
-            createTableCell(`$${trade.buyVolume.toFixed(2)}`, 'table-cell-buy-volume'),
-            createTableCell(`$${trade.sellVolume.toFixed(2)}`, 'table-cell-sell-volume'),
-            createTableCell(trade.uniqueTraders, 'table-cell-unique-traders'),
-            createTableCell(timeSinceLastTrade, 'table-cell-time-since-last-trade')
-        ];
-
-        // Append td elements to the row
-        cells.forEach(cell => row.appendChild(cell));
-
-        // Append row to the table body
-        feedElement.appendChild(row);
-    });
-}
-function renderTrades(trades) {
-    feedElement.innerHTML = '';
-    trades.forEach(trade => {
-        const timeSinceLastTrade = Math.floor((Date.now() - trade.lastTradeTime) / 1000);
-        const row = document.createElement('tr');
-
         // Calculate buy and sell ratios
         const buyRatio = trade.buyVolume / (trade.buyVolume + trade.sellVolume);
         const sellRatio = trade.sellVolume / (trade.buyVolume + trade.sellVolume);
@@ -146,10 +121,12 @@ function renderTrades(trades) {
         let backgroundColor;
         if (buyRatio > sellRatio) {
             const greenIntensity = Math.floor(255 * buyRatio);
-            backgroundColor = `rgb(${255 - greenIntensity}, ${greenIntensity}, ${255 - greenIntensity})`;
+            // Set opacity to 0.5 (adjust as needed)
+            backgroundColor = `rgba(${255 - greenIntensity}, ${greenIntensity}, ${255 - greenIntensity}, 0.4)`;
         } else {
             const redIntensity = Math.floor(255 * sellRatio);
-            backgroundColor = `rgb(${redIntensity}, ${255 - redIntensity}, ${255 - redIntensity})`;
+            // Set opacity to 0.5 (adjust as needed)
+            backgroundColor = `rgba(${redIntensity}, ${255 - redIntensity}, ${255 - redIntensity}, 0.4)`;
         }
 
         // Set background color for the row
@@ -158,7 +135,7 @@ function renderTrades(trades) {
         // Create td elements with appropriate classes
         const cells = [
             createTableCellWithImage(trade.image_uri || 'path/to/default/image.jpg', trade.name, 'table-cell-name'),
-            createTableCell(trade.symbol, 'table-cell-symbol'),
+            createTableCellWithLink(trade.symbol, `https://pump.fun/${trade.symbol}`, 'table-cell-symbol'), // Modified to include hyperlink
             createTableCell(`$${parseFloat(trade.usd_market_cap).toFixed(2)}`, 'table-cell-market-cap'),
             createTableCell(`$${trade.totalVolume.toFixed(2)}`, 'table-cell-total-volume'),
             createTableCell(`$${trade.buyVolume.toFixed(2)}`, 'table-cell-buy-volume'),
@@ -174,6 +151,23 @@ function renderTrades(trades) {
         feedElement.appendChild(row);
     });
 }
+
+function createTableCellWithLink(text, link, className) {
+    const cell = document.createElement('td');
+    cell.classList.add(className); // Add class to the td element
+
+    // Create an anchor element
+    const anchor = document.createElement('a');
+    anchor.href = link;
+    anchor.target = '_blank'; // Open link in a new tab
+    anchor.textContent = text;
+
+    // Append anchor element to the cell
+    cell.appendChild(anchor);
+
+    return cell;
+}
+
 
 function createTableCellWithImage(imageUrl, name, className) {
     const cell = document.createElement('td');
@@ -209,53 +203,4 @@ timeRangeSelect.addEventListener('change', updateFeed);
 postCountSelect.addEventListener('change', updateFeed);
 feedTypeSelect.addEventListener('change', updateFeed);
 
-updateFeed();
-
-// Placeholder for Solana price
-let solPrice = 140;
-
-// Additional state for leaderboard
-let traders = {};
-
-// Updated tradeCreated event to track profit and update leaderboard
-socket.on('tradeCreated', (newTrade) => {
-    // ... Your existing code for handling newTrade ...
-
-    // Update trader profit (simplified example calculation)
-    const profitFromTrade = newTrade.is_buy
-        ? (newTrade.sol_amount * solPrice) // Assume profit is just the buy amount times SOL price
-        : (-newTrade.sol_amount * solPrice); // Negative for a sell
-
-    if (!traders[newTrade.user]) {
-        traders[newTrade.user] = { totalProfit: 0, trades: [] };
-    }
-    traders[newTrade.user].totalProfit += profitFromTrade;
-    traders[newTrade.user].trades.push(newTrade);
-
-    // ... Your existing code for filtering trades ...
-
-    // Call to update the leaderboard
-    updateLeaderboard();
-});
-
-function updateLeaderboard() {
-    // ... Your existing updateLeaderboard function ...
-}
-
-function renderLeaderboard(sortedTraders) {
-    const leaderboardElement = document.getElementById('leaderboard');
-    leaderboardElement.innerHTML = '';
-
-    sortedTraders.forEach(trader => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${trader.user}</td>
-            <td>${trader.totalProfit.toFixed(2)}</td>
-            <td>${trader.trades.length}</td>
-        `;
-        leaderboardElement.appendChild(row);
-    });
-}
-
-// Call the initial update feed to populate the data
 updateFeed();
