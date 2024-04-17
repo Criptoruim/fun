@@ -17,6 +17,7 @@ socket.on('tradeCreated', (newTrade) => {
     updateLeaderboard();
 });
 
+
 function updateLeaderboard() {
     // Sort traders by total trades
     const sortedTraders = Object.entries(traders).sort((a, b) => b[1].totalTrades - a[1].totalTrades);
@@ -24,7 +25,16 @@ function updateLeaderboard() {
     leaderboardElement.innerHTML = '';
     sortedTraders.forEach(trader => {
         const row = document.createElement('tr');
-        row.innerHTML = `<td>${trader[0]}</td><td>${trader[1].totalTrades}</td>`;
+        const walletLink = document.createElement('a');
+        walletLink.href = `https://solscan.io/account/${trader[0]}`;
+        walletLink.textContent = trader[0];
+        walletLink.target = "_blank"; // Open link in a new tab
+        const walletCell = document.createElement('td');
+        walletCell.appendChild(walletLink);
+        const tradesCell = document.createElement('td');
+        tradesCell.textContent = trader[1].totalTrades;
+        row.appendChild(walletCell);
+        row.appendChild(tradesCell);
         leaderboardElement.appendChild(row);
     });
 }
