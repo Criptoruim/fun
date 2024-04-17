@@ -93,3 +93,12 @@ table tbody > tr > td {
     padding: 8px 10px;
     overflow-wrap: break-word;
 }
+
+/* Leaderboard styles */
+.leaderboard-container {
+    margin-top: 20px;
+}
+
+.leaderboard-container h2 {
+    margin-bottom: 10px;
+}
