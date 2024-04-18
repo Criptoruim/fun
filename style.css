@@ -74,7 +74,7 @@ header.site-header {
 }
 
 .table thead th {
-    white-space: nowrap; /* Prevent line breaks */
+    white-space: wrap; /* Prevent line breaks */
 }
 
 .table tbody td:first-child {
@@ -83,7 +83,7 @@ header.site-header {
 
 tr tbody {
     display: table-row;
-    vertical-align: inherit;
+    vertical-align: center;
     unicode-bidi: isolate;
     border-color: inherit;
 }
@@ -94,11 +94,7 @@ table tbody > tr > td {
     overflow-wrap: break-word;
 }
 
-/* Leaderboard styles */
-.leaderboard-container {
-    margin-top: 20px;
-}
-
-.leaderboard-container h2 {
-    margin-bottom: 10px;
+a {
+    text-decoration: inherit;
+    padding: 0px;
 }
