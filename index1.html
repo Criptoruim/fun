@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pump.Tools</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,7 +15,8 @@
                     <h1 class="branding">Pump.Tools</h1>
                 </div>
                 <div class="col-2">
-                    <button id="connectButton">HAVE FUN</button>
+                    <!-- <button id="connectButton">HAVE FUN</button> -->
+                    <div id="solanaPrice"></div>
                 </div> 
             </div>
         </div>
@@ -96,6 +96,9 @@
                 <tr>
                     <th>Wallet ID</th>
                     <th>Total Trades</th>
+                    <th>Buy Volume (USD)</th>
+                    <th>Sell Volume (USD)</th>
+                    <th>Profit/Loss (USD)</th>
                 </tr>
             </thead>
             <tbody id="leaderboard">
@@ -105,15 +108,13 @@
         </div>
         <!-- Include any necessary scripts, such as the script provided in your question -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js"></script>
-        <script type="module" src="leaderboard.js">
-            // Your script implementing the leaderboard functionality goes here
-        </script>
-    <script type="module" src="wallet.js"></script>
-    <!-- Socket.IO -->
-    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-    <!-- Custom JS -->
-    <script type="module" src="script1.js"></script>
-    <script>
+        <script type="module" src="leaderboard.js"></script>
+        <script type="module" src="wallet.js"></script>
+        <!-- Socket.IO -->
+        <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+        <!-- Custom JS -->
+        <script type="module" src="script1.js"></script>
+        <script>
         document.getElementById('newTokensLink').addEventListener('click', function() {
             document.getElementById('newTokens').style.display = 'block';
             document.getElementById('traders').style.display = 'none';
@@ -123,6 +124,6 @@
             document.getElementById('newTokens').style.display = 'none';
             document.getElementById('traders').style.display = 'block';
         });
-    </script>
+        </script>
 </body>
 </html>
