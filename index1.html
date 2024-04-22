@@ -40,9 +40,9 @@
 
     <!-- nav bar end -->
     <!--  -->
-    <div  class="container mt-3">
+    <div id="newTokens" class="container mt-3" style="display: block;">
         <div class="row align-items-center mb-3">
-            <div id="newTokens" class="col-md-4">
+            <div class="col-md-4">
                 <label for="timeRange" class="form-label">Time Range:</label>
                 <select id="timeRange" class="form-select">
                     <option value="3">Last 3 minutes</option>
@@ -64,14 +64,13 @@
                     <option value="volume">Volume</option>
                     <option value="gainers">Gainers</option>
                     <option value="losers">Losers</option>
-                    <!-- New option added -->
                     <option value="uniqueTraders">Unique Traders</option>
                 </select>
             </div>
 
         </div>
          <div class="table-container">
-            <table id="newTokens"class="table" display="block">
+            <table class="table" >
                 <thead>
                     <tr>
                         <th>Name</th>
@@ -89,9 +88,10 @@
                 </tbody>
             </table>
         </div> 
-
+    </div>
+    <div id="traders" class="container mt-3" style="display: none;">
         <div class="table-container">
-        <table id="traders" style="display: none;">
+        <table>
             <thead>
                 <tr>
                     <th>Wallet ID</th>
