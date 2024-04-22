@@ -2,6 +2,7 @@ const feedElement = document.getElementById('feed');
 const timeRangeSelect = document.getElementById('timeRange');
 const postCountSelect = document.getElementById('postCount');
 const feedTypeSelect = document.getElementById('feedType');
+const solanaPriceElement = document.getElementById('solanaPrice'); // New element to display Solana price
 
 let trades = [];
 let solPrice = 0; // Placeholder for Solana price
@@ -26,6 +27,7 @@ const socket = io('wss://client-api-2-74b1891ee9f9.herokuapp.com', {
 socket.on('connect', () => {
     console.log('Connected to WebSocket server');
     fetchSolPrice();
+    setInterval(fetchSolPrice, 60000); // Fetch Solana price every 1 minute (adjust interval as needed)
 });
 
 socket.on('tradeCreated', (newTrade) => {
@@ -54,8 +56,27 @@ function flashMarketCap(mint, color) {
 }
 
 function fetchSolPrice() {
-    solPrice = 172.01;
-    updateFeed();
+    fetch('https://price.jup.ag/v4/price?ids=SOL')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch Solana price');
+            }
+            return response.json();
+        })
+        .then(data => {
+            solPrice = data.data.SOL.price;
+            console.log('Fetched Solana price:', solPrice);
+            updateSolanaPriceDisplay(solPrice); // Update Solana price display
+            updateFeed();
+        })
+        .catch(error => {
+            console.error('Error fetching Solana price:', error.message);
+            // You may handle errors here, such as displaying an error message to the user
+        });
+}
+
+function updateSolanaPriceDisplay(price) {
+    solanaPriceElement.textContent = `Solana Price: $${price.toFixed(2)}`; // Display Solana price
 }
 
 function calculateVolumesForDisplay() {
@@ -204,3 +225,52 @@ postCountSelect.addEventListener('change', updateFeed);
 feedTypeSelect.addEventListener('change', updateFeed);
 
 updateFeed();
+
+// test 
+
+// Function to fetch data from the API
+async function fetchData() {
+    try {
+      const response = await fetch('https://client-api-2-74b1891ee9f9.herokuapp.com');
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
+      }
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text(); // Get the response content as text
+        console.error('Response is not in JSON format:', text);
+        return null;
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      return null;
+    }
+  }
+  
+  
+  
+  // Function to display fetched data
+  async function displayData() {
+    const data = await fetchData();
+    if (!data) {
+      console.error('No data available');
+      return;
+    }
+  
+    // Assuming data is an array of objects
+    data.forEach(item => {
+      console.log('Name:', item.name);
+      console.log('Symbol:', item.symbol);
+      console.log('Description:', item.description);
+      console.log('Image URI:', item.image_uri);
+      console.log('Creator:', item.creator);
+      console.log('Market Cap:', item.market_cap);
+      console.log('---');
+    });
+  }
+  
+  // Call the displayData function to fetch and display data
+  displayData();
+  
