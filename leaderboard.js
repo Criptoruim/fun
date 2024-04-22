@@ -15,62 +15,144 @@ socket.on('connect', () => {
 });
 
 socket.on('tradeCreated', (newTrade) => {
-    if (!traders[newTrade.user]) {
-        traders[newTrade.user] = { totalTrades: 0, buyVolumeUSD: 0, sellVolumeUSD: 0 };
+    try {
+        console.log('New trade received:', newTrade); // Log the entire newTrade object
+        const solAmount = newTrade.sol_amount / 1000000000; // Conversion from lamports to SOL
+        const priceUSD = solAmount * solToUSD; // Convert SOL amount to USD
+        const user = newTrade.user;
+        const name = newTrade.name; // Assuming name information is available
+        console.log('Name:', name); // Log the name property
+        if (!user || !name) {
+            throw new Error('User or Name is undefined');
+        }
+        processTrade(user, name, newTrade.is_buy, solAmount, priceUSD);
+        updateLeaderboard(); // Update leaderboard after processing the trade
+    } catch (error) {
+        console.error('Error processing trade:', error);
     }
-    const userTrades = traders[newTrade.user];
-    userTrades.totalTrades += 1;
-
-    // Assuming newTrade.sol_amount is in the smallest unit of SOL (lamports) and needs to be converted to SOL
-    const solAmount = newTrade.sol_amount / 1000000000; // Conversion from lamports to SOL
-    const tradeValueUSD = solAmount * solToUSD; // Convert SOL amount to USD
-
-    if (newTrade.is_buy) {
-        userTrades.buyVolumeUSD += tradeValueUSD;
-    } else {
-        userTrades.sellVolumeUSD += tradeValueUSD;
-    }
-
-    updateLeaderboard();
 });
 
-function updateLeaderboard() {
-    // Sort traders by total trades
-    const sortedTraders = Object.entries(traders).sort((a, b) => b[1].totalTrades - a[1].totalTrades);
-
-    leaderboardElement.innerHTML = '';
-    sortedTraders.forEach(trader => {
-        const row = document.createElement('tr');
-
-        // Create a link element for the trader's name
-        const traderLink = document.createElement('a');
-        traderLink.href = `https://solscan.io/account/${trader[0]}`;
-        traderLink.textContent = trader[0];
-        traderLink.target = "_blank"; // Open link in a new tab
-
-        // Create a new <td> element for the trader's name with the link
-        const nameCell = document.createElement('td');
-        nameCell.appendChild(traderLink);
-
-        // Calculate profit and loss
-        const pnl = trader[1].buyVolumeUSD - trader[1].sellVolumeUSD;
-
-        // Create a new <td> element for the profit and loss
-        const pnlCell = document.createElement('td');
-        pnlCell.textContent = `$${pnl.toFixed(2)}`;
-
-        // Append all <td> elements to the row
-        row.appendChild(nameCell); // Append the name cell with the link
-        row.innerHTML += `<td>${trader[1].totalTrades}</td>
-                          <td>$${trader[1].buyVolumeUSD.toFixed(2)}</td>
-                          <td>$${trader[1].sellVolumeUSD.toFixed(2)}</td>`;
-        row.appendChild(pnlCell); // Append the P&L cell to the row
-
-        // Append the row to the leaderboard
-        leaderboardElement.appendChild(row);
-    });
+function processTrade(user, name, isBuy, solAmount, priceUSD) {
+    if (!traders[user]) {
+        traders[user] = {};
+    }
+    
+    // Check if the trader with the same name already exists for the user
+    if (traders[user][name]) {
+        const trader = traders[user][name];
+        if (isBuy) {
+            trader.buys.push({ amount: solAmount, priceUSD: priceUSD });
+            trader.buyVolumeUSD += priceUSD;
+        } else {
+            trader.sells.push({ amount: solAmount, priceUSD: priceUSD });
+            trader.sellVolumeUSD += priceUSD;
+            calculateProfit(user, name, solAmount, priceUSD);
+        }
+        trader.totalTrades++;
+    } else {
+        // Create a new trader entry
+        traders[user][name] = {
+            buys: isBuy ? [{ amount: solAmount, priceUSD: priceUSD }] : [],
+            sells: isBuy ? [] : [{ amount: solAmount, priceUSD: priceUSD }],
+            totalTrades: 1,
+            buyVolumeUSD: isBuy ? priceUSD : 0,
+            sellVolumeUSD: isBuy ? 0 : priceUSD,
+            realizedProfit: 0
+        };
+    }
 }
 
+function calculateProfit(user, name, soldAmount, sellPriceUSD) {
+    let remainingAmount = soldAmount;
+    const trader = traders[user][name];
+
+    while (remainingAmount > 0 && trader.buys.length > 0) {
+        let buy = trader.buys[0];
+
+        if (remainingAmount <= buy.amount) {
+            trader.realizedProfit += remainingAmount * (sellPriceUSD - buy.priceUSD);
+            buy.amount -= remainingAmount;
+            if (buy.amount === 0) {
+                trader.buys.shift();
+            }
+            remainingAmount = 0;
+        } else {
+            trader.realizedProfit += buy.amount * (sellPriceUSD - buy.priceUSD);
+            remainingAmount -= buy.amount;
+            trader.buys.shift();
+        }
+    }
+}
+
+function updateLeaderboard() {
+    const sortedTraders = Object.entries(traders).sort((a, b) => {
+        const totalProfitA = Object.values(a[1]).reduce((acc, curr) => acc + curr.realizedProfit, 0);
+        const totalProfitB = Object.values(b[1]).reduce((acc, curr) => acc + curr.realizedProfit, 0);
+        return totalProfitB - totalProfitA;
+    });
+
+    leaderboardElement.innerHTML = sortedTraders.map(([user, names]) => {
+        let userHTML = '';
+        Object.entries(names).forEach(([name, data]) => {
+            let tradesHTML = '';
+
+            if (data.buys.length > 0 || data.sells.length > 0) {
+                tradesHTML += '<table>';
+                data.buys.forEach(buy => {
+                    tradesHTML += `
+                        <tr>
+                            <td>${name}</td>
+                            <td>Buy</td>
+                            <td>${buy.priceUSD.toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+
+                data.sells.forEach(sell => {
+                    tradesHTML += `
+                        <tr>
+                            <td>${name}</td>
+                            <td>Sell</td>
+                            <td>${sell.priceUSD.toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+
+                tradesHTML += '</table>';
+            }
+
+            userHTML += `
+                <tr class="collapsible">
+                    <td>${user}</td>
+                    <td>${name}</td>
+                    <td>${data.totalTrades}</td>
+                    <td>${data.buyVolumeUSD.toFixed(2)}</td>
+                    <td>${data.sellVolumeUSD.toFixed(2)}</td>
+                    <td>${data.realizedProfit.toFixed(2)}</td>
+                </tr>
+                <tr class="trade-details">
+                    <td colspan="6">${tradesHTML}</td>
+                </tr>
+            `;
+        });
+
+        return userHTML;
+    }).join('');
+
+    // Add event listeners to collapsible buttons
+    const coll = document.getElementsByClassName("collapsible");
+    for (let i = 0; i < coll.length; i++) {
+        coll[i].addEventListener("click", function () {
+            this.classList.toggle("active");
+            const tradeDetails = this.nextElementSibling;
+            if (tradeDetails.style.maxHeight) {
+                tradeDetails.style.maxHeight = null;
+            } else {
+                tradeDetails.style.maxHeight = tradeDetails.scrollHeight + "px";
+            }
+        });
+    }
+}
 
 function fetchSolPrice() {
     fetch('https://price.jup.ag/v4/price?ids=SOL')
@@ -90,3 +172,6 @@ function fetchSolPrice() {
             // You may handle errors here, such as displaying an error message to the user
         });
 }
+
+// Ensure initial leaderboard update on load or when the Sol price is fetched
+updateLeaderboard();
